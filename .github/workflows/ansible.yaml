@@ -1,4 +1,4 @@
-name: Deploy with Ansible
+name: Execute Command via SSM
 
 on:
   push:
@@ -9,6 +9,8 @@ env:
   AWS_REGION: "us-east-1"
   DEV_ACT: "282527170177"
   GITHUB_ROLE: "github-centroid-role"
+  EC2_TAG_NAME: "ServerRole"
+  EC2_TAG_VALUE: "JumpHostNoPrivs"
 
 jobs:
   deploy:
@@ -28,10 +30,11 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Lookup EC2 Instances
+        id: lookup-instances
         run: |
           INSTANCE_IDS=$( \
             aws ec2 describe-instances --filters \
-            "Name=tag:ServerRole,Values=JumpHostNoPrivs" \
+            "Name=tag:${{ env.EC2_TAG_NAME }},Values=${{ env.EC2_TAG_VALUE }}" \
             --query 'Reservations[*].Instances[*].InstanceId' \
             --output text | tr '\t' ' ' | xargs)
 
@@ -44,8 +47,83 @@ jobs:
           echo "instance_ids=$INSTANCE_IDS" >> $GITHUB_OUTPUT
           
 
-#     - name: Run Ansible Playbook
-#       uses: aws-actions/ssm-run-command@v1
-#       with:
-#         command: ansible-playbook /centroid-ansible/playbook.yml
-#         instance-ids: xxxxx
+      - name: Run Ansible Playbook
+        id: run-ssm-command
+        run: |
+          INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
+          COMMAND_ID = $(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --instance-ids $(${INSTANCE_IDS%% *) \
+            --parameters 'commands=["cat /test.txt"]' \
+            --timeout-seconds 120 \
+            --comment "Github Action Run Centroid" \
+            --query 'Command.CommandId' \
+            --output text) 
+         echo "SSM Command ID: $COMMAND_ID"
+         echo "command_id=$COMMAND_ID">> $GITHUB_OUTPUT
+
+     - name: Wait for SSM command completion
+       id: wait-for-completion
+       run: |
+         COMMAND_ID=$(${{ steps.run.ssm.command.outputs.command_id }}"
+         echo "Waiting for command $COMMAND_ID to complete..."
+         
+         MAX_ATTEMPTS=60
+         ATTEMPT=0
+ 
+         while [ $ATTEMPT lt $MAX_ATTEMPTS ] do
+           STATUS=$(aws ssm list-commands \
+             --command-id "$COMMAND_ID" \
+             --query 'Commands[0].Status' \
+             --output text)
+
+           echo "Attempt $((ATTEMPT + 1))/$MAX_ATTEMPTS - Status: $STATUS"
+
+           case $STATUS in
+             "Success")
+               echo "::notice::Command completed successfully!"
+               echo "status=success" >> $GITHUB_OUTPUT
+               break
+               ;;
+             "Failed")
+               echo "::error::Command failed with status: $STATUS"
+               echo "status=failed" >> $GITHUB_OUTPUT
+               break
+               ;;
+             "Pending"|"InProgress")
+               sleep 10
+               ATTEMPT=$((ATTEMPT + 1))
+               ;;
+             *)
+               echo "Unknown status: $STATUS"
+               sleep 10
+               ATTEMPT=$((ATTEMPT + 1))
+               ;;
+           esac
+         done
+
+         if [$ATTEMPT -ge $MAX_ATTEMPTS ]; then
+           echo "::error::Command timed out waiting for completion"
+           echo "status=timeout" >> $GITHUB_OUTPUT 
+           exit 1
+         fi
+
+ 
+     - name: Display command output
+       if: always()
+       run: |
+         COMMAND_ID=$(${{ steps.run.ssm.command.outputs.command_id }}"
+
+         echo "=== Command Output ==="
+         aws ssm get-command-invocation \
+           --command-id "$COMMAND_ID" 
+           --instance-id $(${INSTANCE_IDS%% *) \
+           --query '{Status:Status,StatusDetails:StatusDetails,StandardOutputContent:StandardOutputContent,StandardErrorContent:StandardErrorContent}'
+           --output yaml 2>/dev/null || echo "Could not retrieve output for $(${INSTANCE_IDS%% *)"
+
+  
+     - name: Final status check
+       if steps.wait-for-completion.outputs.status != 'success'
+       run: |
+         echo "::error::Command execution did not complete successfully"
+         exit 1
