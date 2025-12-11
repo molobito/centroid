@@ -123,7 +123,7 @@ jobs:
 
     
       - name: Final status check
-        if steps.wait-for-completion.outputs.status != 'success'
+        if: steps.wait-for-completion.outputs.status != 'success'
         run: |
           echo "::error::Command execution did not complete successfully"
           exit 1
