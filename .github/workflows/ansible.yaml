@@ -47,13 +47,13 @@ jobs:
           echo "instance_ids=$INSTANCE_IDS" >> $GITHUB_OUTPUT
           
 
-      - name: Run Ansible Playbook
+      - name: Run SSM Command
         id: run-ssm-command
         run: |
           INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
           COMMAND_ID = $(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
-            --instance-ids $(${INSTANCE_IDS%% *) \
+            --instance-ids $(${INSTANCE_IDS%% *}) \
             --parameters 'commands=["cat /test.txt"]' \
             --timeout-seconds 120 \
             --comment "Github Action Run Centroid" \
