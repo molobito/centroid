@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Configure AWS Creds
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           role-to-assume: arn:aws:iam::${{ env.DEV_ACT }}:role/${{ env.GITHUB_ROLE }}
           role-session-name: github_aws_federated_oidc
