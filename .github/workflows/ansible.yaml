@@ -51,7 +51,7 @@ jobs:
         id: run-ssm-command
         run: |
           INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
-          COMMAND_ID = $(aws ssm send-command \
+          COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --instance-ids ${INSTANCE_IDS%% *} \
             --parameters 'commands=["cat /test.txt"]' \
