@@ -1,0 +1,48 @@
+name: Deploy with Ansible
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: "us-east-1"
+  DEV_ACT: "282527170177"
+  GITHUB_ROLE: "github-centroid-role"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: arn:aws:iam::${{ env.DEV_ACT }}:role/${{ env.GITHUB_ROLE }}
+          role-session-name: github_aws_federated_oidc
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Lookup EC2 Instances
+        run: |
+          INSTANCE_IDS=$( \
+            aws ec2 describe-instances --filters \
+            "Name=tag:ServerRole,Values=JumpHostNoPrivs" \
+            --query 'Reservations[*].Instances[*].InstanceId' \
+            --output text | tr '\t' ' ' | xargs)
+
+          if [ -z "$INSTANCE_IDS" ]; then
+            echo "::error::No running instances found with specified tags"
+            exit 1
+          fi
+
+          echo "Found Instances: $INSTANCE_IDS"
+          echo "instance_ids=$INSTANCE_IDS" >> $GITHUB_OUTPUT
+          
+
+#     - name: Run Ansible Playbook
+#       uses: aws-actions/ssm-run-command@v1
+#       with:
+#         command: ansible-playbook /centroid-ansible/playbook.yml
+#         instance-ids: xxxxx
