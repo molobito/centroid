@@ -113,11 +113,13 @@ jobs:
         if: always()
         run: |
           COMMAND_ID="${{ steps.run-ssm-command.outputs.command_id }}"
+          INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
+          INSTANCE_ID="${INSTANCE_IDS%% *)"
 
           echo "=== Command Output ==="
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" 
-            --instance-id $(${INSTANCE_IDS%% *) \
+            --instance-id "$INSTANCE_ID" \
             --query '{Status:Status,StatusDetails:StatusDetails,StandardOutputContent:StandardOutputContent,StandardErrorContent:StandardErrorContent}' \
             --output yaml 2>/dev/null || echo "Could not retrieve output for $(${INSTANCE_IDS%% *)"
 
