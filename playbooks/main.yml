@@ -10,7 +10,7 @@
       command: "{{ item }}"
       with_items:
         - "aws eks update-kubeconfig --name daikaiju"
-        - "kubectl get namespaces"
+        - "kubectl --kubeconfig /root/.kube/config get namespaces"
       register: kubectl_output
       changed_when: false
 
