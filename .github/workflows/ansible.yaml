@@ -65,7 +65,7 @@ jobs:
               "Check": ["False"],
               "TimeoutSeconds": ["3600"]
             }' \
-            --timeout-seconds 120 \
+            --timeout-seconds 3600 \
             --comment "Github Action Run Centroid" \
             --query 'Command.CommandId' \
             --output text) 
