@@ -65,7 +65,7 @@ jobs:
       - name: Wait for SSM command completion
         id: wait-for-completion
         run: |
-          COMMAND_ID=$(${{ steps.run.ssm.command.outputs.command_id }}"
+          COMMAND_ID='${{ steps.run.ssm.command.outputs.command_id }}'
           echo "Waiting for command $COMMAND_ID to complete..."
          
           MAX_ATTEMPTS=60
