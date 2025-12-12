@@ -1,0 +1,20 @@
+---
+# list_namespaces.yaml - Lists all nampespaces in a Kubernetes cluster
+
+- name: List Kubernetes Namespaces
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Generate Kubeconfig
+      command: aws eks update-kubeconfig --name daikaiju
+      changed_when: false
+
+    - name: Get Kubernetes nampespaces
+      command: kubectl get namespaces
+      register: kubectl_output
+      changed_when: false
+
+    - name: Display Kubernetes namespaces
+      debug:
+        var: kubectl_output.stdout_lines

@@ -11,6 +11,9 @@ env:
   GITHUB_ROLE: "github-centroid-role"
   EC2_TAG_NAME: "ServerRole"
   EC2_TAG_VALUE: "JumpHostNoPrivs"
+  GIT_OWNER: "molobito"
+  GIT_REPO: "centroid"
+  PLAYBOOK_PATH: "playbooks"
 
 jobs:
   deploy:
@@ -52,9 +55,17 @@ jobs:
         run: |
           INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
           COMMAND_ID=$(aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
+            --document-name "AWS-ApplyAnsiblePlaybooks" \
             --instance-ids ${INSTANCE_IDS%% *} \
-            --parameters 'commands=["cat /test.txt"]' \
+            --parameters '{ 
+              "sourceType": ["Github"],
+              "sourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.PLAYBOOK_PATH }}\",\"getOptions\":\"branch:main\"}",
+              "installDependencies": ["True\"],
+              "playbook": ["main.yml"],
+              "extraVariables":["{}"],
+              "check": ["False"],
+              "timeoutSeconds": ["120"]
+            }' \
             --timeout-seconds 120 \
             --comment "Github Action Run Centroid" \
             --query 'Command.CommandId' \
