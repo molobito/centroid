@@ -6,12 +6,11 @@
   gather_facts: false
 
   tasks:
-    - name: Generate Kubeconfig
-      command: aws eks update-kubeconfig --name daikaiju
-      changed_when: false
-
-    - name: Get Kubernetes nampespaces
-      command: kubectl get namespaces
+    - name: Generate Kubeconfig and Get Kubernetes Namespaces
+      command: "{{ item }}"
+      with_items:
+        - "aws eks update-kubeconfig --name daikaiju"
+        - "kubectl get namespaces"
       register: kubectl_output
       changed_when: false
 
