@@ -62,7 +62,6 @@ jobs:
               "SourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.AUTOMATION_PATH }}\",\"getOptions\":\"branch:main\"}"],
               "InstallDependencies": ["True"],
               "PlaybookFile": ["playbooks/main.yml"],
-              "extraVariables":["{}"],
               "Check": ["False"],
               "TimeoutSeconds": ["3600"]
             }' \
