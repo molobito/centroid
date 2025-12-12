@@ -60,7 +60,7 @@ jobs:
             --parameters '{ 
               "sourceType": ["Github"],
               "sourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.PLAYBOOK_PATH }}\",\"getOptions\":\"branch:main\"}"],
-              "installDependencies": ["True\"],
+              "installDependencies": ["True"],
               "playbook": ["main.yml"],
               "extraVariables":["{}"],
               "check": ["False"],
