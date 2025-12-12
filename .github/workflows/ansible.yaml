@@ -13,7 +13,7 @@ env:
   EC2_TAG_VALUE: "JumpHostNoPrivs"
   GIT_OWNER: "molobito"
   GIT_REPO: "centroid"
-  PLAYBOOK_PATH: "playbooks"
+  AUTOMATION_PATH: "/"
 
 jobs:
   deploy:
@@ -58,13 +58,13 @@ jobs:
             --document-name "AWS-ApplyAnsiblePlaybooks" \
             --instance-ids ${INSTANCE_IDS%% *} \
             --parameters '{ 
-              "sourceType": ["Github"],
-              "sourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.PLAYBOOK_PATH }}\",\"getOptions\":\"branch:main\"}"],
-              "installDependencies": ["True"],
-              "playbook": ["main.yml"],
+              "SourceType": ["Github"],
+              "SourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.AUTOMATION_PATH }}\",\"getOptions\":\"branch:main\"}"],
+              "InstallDependencies": ["True"],
+              "PlaybookFile": ["playbooks/main.yml"],
               "extraVariables":["{}"],
-              "check": ["False"],
-              "timeoutSeconds": ["120"]
+              "Check": ["False"],
+              "TimeoutSeconds": ["3600"]
             }' \
             --timeout-seconds 120 \
             --comment "Github Action Run Centroid" \
