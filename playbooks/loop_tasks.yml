@@ -1,8 +1,7 @@
-- name: Set kubectl context
-  shell: kubectl config use-context {{ item }}
-
+- name: Set kubectl config
+  shell: aws eks update-kubeconfig --name {{ item }}
 - name: Run kubectl command
-  command: kubectl get nodes 
+  command: kubectl --kubeconfig /root/.kube/config get ns
   register: kubectl_output
 - name: Display output
   debug:
