@@ -6,7 +6,7 @@
   gather_facts: false
   vars:
    kubernetes_clusters:
-   - daikaiju
+     - daikaiju
 
   tasks:
     - name: Run Commands Against Multiple Clusters
@@ -15,11 +15,11 @@
       shell: kubectl config use-context {{ item.context }}
 
       - name: Run kubectl command
-      command: kubectl get nodes 
-      register: kubectl_output
+        command: kubectl get nodes 
+        register: kubectl_output
       - name: Display output
-      debug:
-        var: kubectl_output.stdout_lines
+        debug:
+          var: kubectl_output.stdout_lines
     loop: "{{ kubernetes_clusters }}"
 
 #   - name: Generate Kubeconfig and Get Kubernetes Namespaces
