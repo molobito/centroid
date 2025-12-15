@@ -6,7 +6,7 @@
   gather_facts: false
   vars:
    kubernetes_clusters:
-   - name: daikaiju
+   - daikaiju
 
   tasks:
     - name: Run Commands Against Multiple Clusters
