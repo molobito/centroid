@@ -4,16 +4,32 @@
 - name: List Kubernetes Namespaces
   hosts: localhost
   gather_facts: false
+  vars:
+   kubernetes_clusters:
+   - name: daikaiju
 
   tasks:
-    - name: Generate Kubeconfig and Get Kubernetes Namespaces
-      command: "{{ item }}"
-      with_items:
-        - "aws eks update-kubeconfig --name daikaiju"
-        - "kubectl --kubeconfig /root/.kube/config get namespaces"
-      register: kubectl_output
-      changed_when: false
+    - name: Run Commands Against Multiple Clusters
+    block:
+      - name: Set kubectl context
+      shell: kubectl config use-context {{ item.context }}
 
-    - name: Display Kubernetes namespaces
+      - name: Run kubectl command
+      command: kubectl get nodes 
+      register: kubectl_output
+      - name: Display output
       debug:
-        var: kubectl_output
+        var: kubectl_output.stdout_lines
+    loop: "{{ kubernetes_clusters }}"
+
+#   - name: Generate Kubeconfig and Get Kubernetes Namespaces
+#     command: "{{ item }}"
+#     with_items:
+#       - "aws eks update-kubeconfig --name daikaiju"
+#       - "kubectl --kubeconfig /root/.kube/config get namespaces"
+#     register: kubectl_output
+#     changed_when: false
+
+#   - name: Display Kubernetes namespaces
+#     debug:
+#       var: kubectl_output
