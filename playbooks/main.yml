@@ -16,4 +16,4 @@
 
     - name: Display Kubernetes namespaces
       debug:
-        var: kubectl_output.stdout_lines
+        var: kubectl_output
