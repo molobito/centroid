@@ -1,0 +1,9 @@
+- name: Set kubectl context
+  shell: kubectl config use-context {{ item }}
+
+- name: Run kubectl command
+  command: kubectl get nodes 
+  register: kubectl_output
+- name: Display output
+  debug:
+    var: kubectl_output.stdout_lines
