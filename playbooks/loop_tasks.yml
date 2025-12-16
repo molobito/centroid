@@ -20,14 +20,14 @@
 #  debug:
 #    var: ansible_facts
 
-#- name: Run command
-#  command: aws sts get-caller-identity
-#  register: iden_output 
-#  environment:
-#      AWS_ACCESS_KEY_ID: "{{ role_output.Credentials.AccessKeyId }}"
-#      AWS_SECRET_ACCESS_KEY: "{{ role_output.Credentials.SecretAccessKey }}"
-#      AWS_SESSION_TOKEN: "{{ role_output.Credentials.SessionToken }}"
-#
-#- name: Display output
-#  debug:
-#    var: iden_output
+- name: Run command
+  command: aws sts get-caller-identity
+  register: iden_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
+- name: Display output
+  debug:
+    var: iden_output
