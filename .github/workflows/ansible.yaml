@@ -7,10 +7,12 @@ on:
 
 env:
   AWS_REGION: "us-east-1"
-  DEV_ACT: "282527170177"
+  ORIG_DEV_ACT: "282527170177"
+  DEV_ACT: "507283832725"
   GITHUB_ROLE: "github-centroid-role"
   EC2_TAG_NAME: "ServerRole"
-  EC2_TAG_VALUE: "JumpHostNoPrivs"
+  ORIT_EC2_TAG_VALUE: "JumpHostNoPrivs"
+  EC2_TAG_VALUE: "JumpHost"
   GIT_OWNER: "molobito"
   GIT_REPO: "centroid"
   AUTOMATION_PATH: "/"

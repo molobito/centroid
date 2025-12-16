@@ -1,8 +1,8 @@
-- name: Set kubectl config
-  shell: aws eks update-kubeconfig --name {{ item }}
-- name: Run kubectl command
-  command: kubectl --kubeconfig /root/.kube/config get ns
-  register: kubectl_output
+- name: Assume IAM role
+  shell: eval $(aws sts assume-role --role-arn arn:aws:iam::123456789123:role/myAwesomeRole --role-session-name test | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
+- name: Run command
+  command: aws sts get-caller-identity
+  register: my_output 
 - name: Display output
   debug:
-    var: kubectl_output.stdout_lines
+    var: my_output
