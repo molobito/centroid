@@ -36,9 +36,9 @@
       AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
       AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
 
-- name: Pause for 3 seconds
-  ansible.builtin.pause:
-    seconds: 3
+#- name: Pause for 3 seconds
+#  ansible.builtin.pause:
+#    seconds: 3
 
 - name: Execute Kubectl Command
   command: kubectl --kubeconfig /root/.kube/config get ns
