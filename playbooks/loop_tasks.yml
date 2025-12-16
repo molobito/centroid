@@ -6,9 +6,9 @@
   command: aws sts get-caller-identity
   register: my_output 
   environment:
-      AWS_ACCESS_KEY_ID: {{ role_output.Credentials.AccessKeyId }}
-      AWS_SECRET_ACCESS_KEY: {{ role_output.Credentials.SecretAccessKey }}
-      AWS_SESSION_TOKEN: {{ role_output.Credentials.SessionToken }}
+      AWS_ACCESS_KEY_ID: "{{ role_output.Credentials.AccessKeyId }}"
+      AWS_SECRET_ACCESS_KEY: "{{ role_output.Credentials.SecretAccessKey }}"
+      AWS_SESSION_TOKEN: "{{ role_output.Credentials.SessionToken }}"
 
 - name: Display output
   debug:
