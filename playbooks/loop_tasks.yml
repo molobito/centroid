@@ -1,18 +1,25 @@
 - name: Assume IAM role
-  command: aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session --output yaml
-  register: role_output
+  aws_sts_assume_role: 
+    role_arn: {{ item.role }}
+    role_session_name: "ansible-session"
+    duration_seconds: 300
+  register: assumed_role
+  
+#- name: Assume IAM role
+#  command: aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session --output yaml
+#  register: role_output
 
-- name: Convert to YAML
-  set_fact:
-    role_out_yaml: {{ role_output | from_yaml }}
+#- name: Convert to YAML
+#  set_fact:
+#    role_out_yaml: {{ role_output | from_yaml }}
 
-- name: Extract Access Key ID
-  set_fact:
-    access_key_id: {{ ansible_facts['role_out_yaml'].Credentials.AccessKeyId }}
+#- name: Extract Access Key ID
+#  set_fact:
+#    access_key_id: {{ ansible_facts['role_out_yaml'].Credentials.AccessKeyId }}
 
-- name: Display Facts
-  debug:
-    var: ansible_facts
+#- name: Display Facts
+#  debug:
+#    var: ansible_facts
 
 #- name: Run command
 #  command: aws sts get-caller-identity
