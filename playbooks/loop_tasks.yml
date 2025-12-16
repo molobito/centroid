@@ -2,7 +2,6 @@
   sts_assume_role: 
     role_arn: "{{ item.role }}"
     role_session_name: "ansible-session"
-    duration_seconds: 300
   register: assumed_role
   
 #- name: Assume IAM role
