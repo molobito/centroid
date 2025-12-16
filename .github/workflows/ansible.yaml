@@ -58,7 +58,7 @@ jobs:
         run: |
           INSTANCE_IDS='${{ steps.lookup-instances.outputs.instance_ids }}'
           COMMAND_ID=$(aws ssm send-command \
-            --document-name "AWS-ApplyAnsiblePlaybooks" \
+            --document-name "DEMO-AWS-ApplyAnsiblePlaybooks" \
             --instance-ids ${INSTANCE_IDS%% *} \
             --parameters '{ 
               "SourceType": ["GitHub"],
