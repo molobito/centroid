@@ -3,6 +3,8 @@
 
 - name: List Kubernetes Namespaces
   hosts: localhost
+  collections:
+    - amazon.aws
   gather_facts: false
   vars:
    kubernetes_clusters:
