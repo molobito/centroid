@@ -20,7 +20,7 @@
 #  debug:
 #    var: ansible_facts
 
-- name: Run command
+- name: Verify Identity
   command: aws sts get-caller-identity
   register: iden_output 
   environment:
@@ -28,6 +28,26 @@
       AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
       AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
 
-- name: Display output
+- name: Generate Kube Config
+  command: aws eks update-kubeconfig --name {{ item.cluster_name }}
+  register: kubecfg_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
+- name: Execute Kubectl Command
+  command: kubectl --kubeconfig /root/.kube/config get ns
+  register: kubectl_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
+- name: Display Identity output
   debug:
     var: iden_output
+
+- name: Display Kubectl output
+  debug:
+    var: kubectl_output
