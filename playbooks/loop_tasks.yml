@@ -2,14 +2,26 @@
   command: aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session --output yaml
   register: role_output
 
-- name: Run command
-  command: aws sts get-caller-identity
-  register: my_output 
-  environment:
-      AWS_ACCESS_KEY_ID: "{{ role_output.Credentials.AccessKeyId }}"
-      AWS_SECRET_ACCESS_KEY: "{{ role_output.Credentials.SecretAccessKey }}"
-      AWS_SESSION_TOKEN: "{{ role_output.Credentials.SessionToken }}"
+- name: Convert to YAML
+  set_fact:
+    role_out_yaml: {{ role_output | from_yaml }}
 
-- name: Display output
+- name: Extract Access Key ID
+  set_fact:
+    access_key_id: {{ ansible_facts['role_out_yaml'].Credentials.AccessKeyId }}
+
+- name: Display Facts
   debug:
-    var: my_output
+    var: ansible_facts
+
+#- name: Run command
+#  command: aws sts get-caller-identity
+#  register: iden_output 
+#  environment:
+#      AWS_ACCESS_KEY_ID: "{{ role_output.Credentials.AccessKeyId }}"
+#      AWS_SECRET_ACCESS_KEY: "{{ role_output.Credentials.SecretAccessKey }}"
+#      AWS_SESSION_TOKEN: "{{ role_output.Credentials.SessionToken }}"
+#
+#- name: Display output
+#  debug:
+#    var: iden_output
