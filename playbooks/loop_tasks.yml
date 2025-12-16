@@ -1,8 +1,15 @@
 - name: Assume IAM role
-  shell: eval $(aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
+  command: aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session --output yaml
+  register: role_output
+
 - name: Run command
   command: aws sts get-caller-identity
   register: my_output 
+  environment:
+      AWS_ACCESS_KEY_ID: {{ role_output.Credentials.AccessKeyId }}
+      AWS_SECRET_ACCESS_KEY: {{ role_output.Credentials.SecretAccessKey }}
+      AWS_SESSION_TOKEN: {{ role_output.Credentials.SessionToken }}
+
 - name: Display output
   debug:
     var: my_output
