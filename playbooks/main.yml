@@ -8,9 +8,9 @@
   gather_facts: false
   vars:
    kubernetes_clusters:
-     - name: catcluster
+     - cluster_name: catcluster
        role: "arn:aws:iam::184527568870:role/centroid-role-catcluster20251216145250081800000002"
-     - name: dogcluster
+     - cluster_name: dogcluster
        role: "arn:aws:iam::184527568870:role/centroid-role-dogcluster20251216145250081900000004"
 
   tasks:
