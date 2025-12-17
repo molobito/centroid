@@ -56,7 +56,7 @@
 - name: Wait for SSM Command on Cluster Account
   shell: |
     aws ssm list-command-invocations \
-      --region {{ aws_region | default('us-east-1') }}
+      --region {{ aws_region | default('us-east-1') }} \ 
       --command-id {{ command_id }} \
       --details \
       --query  'CommandInvocations[*].Status' \
@@ -74,7 +74,7 @@
 - name: Retrieve SSM Command Output
   shell: |
     aws ssm list-command-invocations \
-      --region {{ aws_region | default('us-east-1') }}
+      --region {{ aws_region | default('us-east-1') }} \
       --command-id {{ command_id }} \
       --details \
       --query  'CommandInvocations[*].CommandPlugins[*].Output' \
