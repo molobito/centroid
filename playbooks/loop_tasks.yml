@@ -66,6 +66,10 @@
   delay: 5
   until: command_status.stdout == 'Success'
   changed_when: false
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
 
 - name: Retrieve SSM Command Output
   shell: |
@@ -77,6 +81,10 @@
       --output text
   register: command_output
   changed_when: false
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
 
 - name: Display Node SSM CMD output
   debug:
