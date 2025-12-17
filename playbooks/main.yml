@@ -10,8 +10,10 @@
    kubernetes_clusters:
      - cluster_name: catcluster
        role: "arn:aws:iam::184527568870:role/centroid-role-catcluster20251216145250081800000002"
+       node_cmds: "\"uptime\",\"uname -a\""
      - cluster_name: dogcluster
        role: "arn:aws:iam::184527568870:role/centroid-role-dogcluster20251216145250081900000004"
+       node_cmds: "\"uptime\",\"uname -a\""
 
   tasks:
     - name: Run Commands Against Multiple Clusters

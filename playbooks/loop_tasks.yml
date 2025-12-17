@@ -41,7 +41,7 @@
     aws ssm send-command \
       --document-name "AWS-RunShellScript" \
       --targets "Key=tag:ServerRole,Values=EKSNode" \
-      --parameters 'commands=["uptime","uname -a"]' \
+      --parameters 'commands=[{{ item.node_cmds }}]' \
       --output json
   register: send_command_result
   environment:
