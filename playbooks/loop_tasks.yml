@@ -64,7 +64,7 @@
   register: command_status
   retries: 30
   delay: 5
-  until: command_status.stdout_lines | select('equalto','Success') | length == my_list | length
+  until: command_status.stdout_lines | select('equalto','Success') | length == command_status.stdout_lines | length
   changed_when: false
   environment:
       AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
