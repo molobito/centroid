@@ -53,7 +53,7 @@
   set_fact:
     command_id: "{{ send_command_result.stdout | from_json | json_query('Command.CommandId') }}"
     
-- name: Wait for SSM Command
+- name: Wait for SSM Command on Cluster Account
   shell: |
     aws ssm list-command-invocations \
       --region {{ aws_region | default('us-east-1') }}
