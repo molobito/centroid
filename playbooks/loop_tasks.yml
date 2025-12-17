@@ -40,7 +40,7 @@
   shell: |
     aws ssm send-command \
       --document-name "AWS-RunShellScript" \
-      --targets "Key=tag:ServerRole,Values=EKSNode Key=tag:'aws:eks:cluster-name',Values={{ item.cluster_name }}" \
+      --targets Key=tag:ServerRole,Values=EKSNode Key=tag:'aws:eks:cluster-name',Values={{ item.cluster_name }} \
       --parameters 'commands=[{{ item.node_cmds }}]' \
       --output json
   register: send_command_result
