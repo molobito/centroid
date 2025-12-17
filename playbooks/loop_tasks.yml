@@ -51,7 +51,7 @@
 
 - name: Get Command Id
   set_fact:
-    command_id: "{{ send_command_result | from_json | json_query('Command.CommandId') }}"
+    command_id: "{{ send_command_result.stdout | from_json | json_query('Command.CommandId') }}"
     
 - name: Wait for SSM Command
   shell: |
