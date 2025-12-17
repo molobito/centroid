@@ -48,6 +48,14 @@
       AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
       AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
 
+- name: Execute Shell Command on Worker Node
+  command: aws ssm send-command --document-name "AWS-RunShellScript" --targets "Key=tag:ServerRole,Values=EKSNode"  --parameters 'commands=["uptime","uname -a"]'
+  register: node_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
 - name: Display Identity output
   debug:
     var: iden_output
