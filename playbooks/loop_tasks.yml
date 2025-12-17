@@ -4,53 +4,9 @@
     role_session_name: "ansible-session"
   register: assumed_role
   
-#- name: Assume IAM role
-#  command: aws sts assume-role --role-arn {{ item.role }} --role-session-name ansible-session --output yaml
-#  register: role_output
-
-#- name: Convert to YAML
-#  set_fact:
-#    role_out_yaml: {{ role_output | from_yaml }}
-
-#- name: Extract Access Key ID
-#  set_fact:
-#    access_key_id: {{ ansible_facts['role_out_yaml'].Credentials.AccessKeyId }}
-
-#- name: Display Facts
-#  debug:
-#    var: ansible_facts
-
 - name: Verify Identity
   command: aws sts get-caller-identity
   register: iden_output 
-  environment:
-      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
-      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
-      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
-
-- name: Generate Kube Config
-  command: aws eks update-kubeconfig --name {{ item.cluster_name }} --kubeconfig ./config
-  register: kubecfg_output 
-  environment:
-      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
-      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
-      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
-
-#- name: Pause for 3 seconds
-#  ansible.builtin.pause:
-#    seconds: 3
-
-- name: Execute Kubectl Command
-  command: kubectl --kubeconfig ./config get ns
-  register: kubectl_output 
-  environment:
-      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
-      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
-      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
-
-- name: Execute Shell Command on Worker Node
-  command: aws ssm send-command --document-name "AWS-RunShellScript" --targets "Key=tag:ServerRole,Values=EKSNode"  --parameters 'commands=["uptime","uname -a"]'
-  register: node_output 
   environment:
       AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
       AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
@@ -60,6 +16,67 @@
   debug:
     var: iden_output
 
+- name: Generate Kube Config
+  command: aws eks update-kubeconfig --name {{ item.cluster_name }} --kubeconfig ./config
+  register: kubecfg_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
+- name: Execute Kubectl Command
+  command: kubectl --kubeconfig ./config get ns
+  register: kubectl_output 
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
 - name: Display Kubectl output
   debug:
     var: kubectl_output
+
+- name: Execute Shell Command on Worker Node
+  shell: |
+    aws ssm send-command \
+      --document-name "AWS-RunShellScript" \
+      --targets "Key=tag:ServerRole,Values=EKSNode" \
+      --parameters 'commands=["uptime","uname -a"]'
+  register: send_command_result
+  environment:
+      AWS_ACCESS_KEY_ID: "{{ assumed_role.sts_creds.access_key }}"
+      AWS_SECRET_ACCESS_KEY: "{{ assumed_role.sts_creds.secret_key }}"
+      AWS_SESSION_TOKEN: "{{ assumed_role.sts_creds.session_token }}"
+
+- name: Get Command Id
+  set_fact:
+    command_id: "{{ send_command_result | from_json | json_query('Command.CommandId') }}"
+    
+- name: Wait for SSM Command
+  shell: |
+    aws ssm list-command-invocations \
+      --region {{ aws_region | default('us-east-1') }}
+      --command-id {{ command_id }} \
+      --details \
+      --query  'CommandInvocations[*].Status' \
+      --output text
+  register: command_status
+  retries: 30
+  delay: 5
+  until: command_status.stdout == 'Success'
+  changed_when: false
+
+- name: Retrieve SSM Command Output
+  shell: |
+    aws ssm list-command-invocations \
+      --region {{ aws_region | default('us-east-1') }}
+      --command-id {{ command_id }} \
+      --details \
+      --query  'CommandInvocations[*].CommandPlugins[*].Output' \
+      --output text
+  register: command_output
+  changed_when: false
+
+- name: Display Node SSM CMD output
+  debug:
+    var: command_output.stdout_lines
