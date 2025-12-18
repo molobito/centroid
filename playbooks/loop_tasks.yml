@@ -3,6 +3,7 @@
     role_arn: "{{ item.role }}"
     role_session_name: "ansible-session"
   register: assumed_role
+  no_log: True
   
 - name: Verify Identity
   command: aws sts get-caller-identity
