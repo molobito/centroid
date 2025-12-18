@@ -1,5 +1,5 @@
 ---
-# list_namespaces.yaml - Lists all nampespaces in a Kubernetes cluster
+# main.yml - Main central jump host Ansible file
 
 - name: List Kubernetes Namespaces
   hosts: localhost
