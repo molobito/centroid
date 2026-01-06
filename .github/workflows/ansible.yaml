@@ -60,7 +60,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --document-name "DEMO-AWS-ApplyAnsiblePlaybooks" \
             --instance-ids ${INSTANCE_IDS%% *} \
-            --cloud-watch-output-config "CloudWatchOutputEnabled=${{ env.CLOUDWATCH_ENABLE }},CloudWatchLogGroupname=${{ env.CLOUDWATCH_LOG_GROUP }}" \
+            --cloud-watch-output-config "CloudWatchOutputEnabled=${{ env.CLOUDWATCH_ENABLE }},CloudWatchLogGroupName=${{ env.CLOUDWATCH_LOG_GROUP }}" \
             --parameters '{ 
               "SourceType": ["GitHub"],
               "SourceInfo": ["{\"owner\":\"${{ env.GIT_OWNER }}\",\"repository\":\"${{ env.GIT_REPO }}\",\"path\":\"${{ env.AUTOMATION_PATH }}\",\"getOptions\":\"branch:main\"}"],
