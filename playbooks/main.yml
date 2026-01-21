@@ -19,15 +19,3 @@
     - name: Run Commands Against Multiple Clusters
       include_tasks: loop_tasks.yml
       loop: "{{ kubernetes_clusters }}"
-
-#   - name: Generate Kubeconfig and Get Kubernetes Namespaces
-#     command: "{{ item }}"
-#     with_items:
-#       - "aws eks update-kubeconfig --name daikaiju"
-#       - "kubectl --kubeconfig /root/.kube/config get namespaces"
-#     register: kubectl_output
-#     changed_when: false
-
-#   - name: Display Kubernetes namespaces
-#     debug:
-#       var: kubectl_output
